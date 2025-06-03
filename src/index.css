@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #000;
+  color: white;
+  background-image: radial-gradient(circle at top left, rgba(255, 255, 255, 0.05), rgba(139, 92, 246, 0.05), transparent);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  transition: background 0.5s ease, color 0.5s ease;
+}
+
+button, input {
+  transition: all 0.3s ease-in-out;
+  font-weight: 500;
+  border-radius: 0.5rem;
+}
+
+button:hover {
+  filter: brightness(1.1);
+}
+
+button.neon {
+  background: linear-gradient(to right, #8e2de2, #4a00e0);
+  color: white;
+  box-shadow: 0 0 15px #8e2de2, 0 0 30px #4a00e0;
+  transition: box-shadow 0.3s ease;
+}
+
+button.neon:hover {
+  box-shadow: 0 0 25px #8e2de2, 0 0 45px #4a00e0;
+}
+
+textarea {
+  font-family: 'Fira Code', monospace;
+  background-color: #111827;
+  color: #f3f4f6;
+  border: 1px solid #4b5563;
+}
+
+input[type="file"] {
+  background-color: #1f2937;
+  border: 1px solid #374151;
+  color: #e5e7eb;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+input[type="file"]::file-selector-button {
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  margin-right: 1rem;
+}
+
+input[type="file"]::file-selector-button:hover {
+  background-color: #4338ca;
+}
+
+@keyframes bounce-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.animate-bounce-float {
+  animation: bounce-float 1.5s infinite;
+}
+
+.card-glow {
+  @apply bg-gradient-to-br from-slate-900/90 to-slate-800/90 text-white p-6 rounded-xl shadow-xl border border-white/10 transition-all duration-300;
+}
+
+.card-glow h2 {
+  @apply text-xl font-bold text-pink-400 mb-2;
+}
+
+.card-glow .tag {
+  @apply text-sm bg-slate-700 text-white rounded-full px-3 py-1;
+}
+
+.card-glow a {
+  @apply text-sm text-blue-300 underline;
+}
+
+.card-glow .actions {
+  @apply flex flex-wrap gap-2 mt-4;
+}
+
+.card-glow .actions button {
+  @apply rounded px-4 py-2 font-medium transition hover:scale-105;
+}
