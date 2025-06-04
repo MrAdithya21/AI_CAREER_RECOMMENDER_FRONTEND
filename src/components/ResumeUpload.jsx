@@ -1,7 +1,6 @@
-// Refactored ResumeUpload.jsx – Multi-Step Flow with Drag & Drop
 import React, { useState, useRef } from "react";
 import { uploadResume, extractSkills, recommendCareers } from "../api/api";
-import { FaMagic, FaBrain, FaCloudUploadAlt } from "react-icons/fa";
+import { FaMagic, FaBrain, FaCloudUploadAlt, FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import CareerCards from "./CareerCards";
 import StepTracker from "./StepTracker";
 import Confetti from "react-confetti";
@@ -52,8 +51,8 @@ const ResumeUpload = ({ setStarted }) => {
       const res = await uploadResume(file);
       setText(res.text);
       setExperience(res.experience);
-      setStep(1);
       setStarted(true);
+      setStep(1);
     } catch (err) {
       console.error("Upload failed:", err);
     }
@@ -100,11 +99,27 @@ const ResumeUpload = ({ setStarted }) => {
     setStarted(false);
   };
 
-  return (
-<div className="w-full px-4 md:px-8 py-8 bg-gradient-to-br from-slate-900/80 to-black/70 border border-white/10 rounded-2xl backdrop-blur-xl shadow-xl space-y-10 animate-slide-up">
-      {showConfetti && <Confetti width={width} height={height} numberOfPieces={250} recycle={false} />}
-      <StepTracker currentStep={step} />
+  // Navigate to previous step
+  const prevStep = () => {
+    if (step > 0 && !loading) setStep(step - 1);
+  };
 
+  // Navigate to next step if valid
+  const nextStep = () => {
+    if (!loading) {
+      if (step === 0 && file) handleUpload();
+      else if (step === 1) handleExtractSkills();
+      else if (step === 2) handleRecommendCareers();
+    }
+  };
+
+  return (
+    <div className="w-full px-4 md:px-8 py-8 bg-gradient-to-br from-slate-900/80 to-black/70 border border-white/10 rounded-2xl backdrop-blur-xl shadow-xl space-y-10 animate-slide-up">
+      {showConfetti && <Confetti width={width} height={height} numberOfPieces={250} recycle={false} />}
+      
+      <StepTracker currentStep={step} setStep={(newStep) => !loading && setStep(newStep)} />
+
+      {/* Step Content */}
       {step === 0 && (
         <form
           onDragEnter={handleDrag}
@@ -112,7 +127,9 @@ const ResumeUpload = ({ setStarted }) => {
           onDrop={handleDrop}
           onDragLeave={handleDrag}
           onDragOver={handleDrag}
-          className={`text-center border-2 border-dashed rounded-xl p-10 transition-all duration-300 ${dragActive ? "border-pink-400 bg-white/5" : "border-white/10"}`}
+          className={`text-center border-2 border-dashed rounded-xl p-10 transition-all duration-300 ${
+            dragActive ? "border-pink-400 bg-white/5" : "border-white/10"
+          }`}
         >
           <input
             type="file"
@@ -120,6 +137,7 @@ const ResumeUpload = ({ setStarted }) => {
             ref={inputRef}
             onChange={handleFileChange}
             className="hidden"
+            disabled={loading}
           />
           <FaCloudUploadAlt className="mx-auto text-4xl text-purple-400 mb-4" />
           <p className="text-sm text-gray-300 mb-2">Drag & drop your resume PDF here, or</p>
@@ -127,19 +145,11 @@ const ResumeUpload = ({ setStarted }) => {
             type="button"
             onClick={() => inputRef.current.click()}
             className="px-6 py-2 text-sm font-semibold bg-purple-600 hover:bg-purple-700 text-white rounded-full"
+            disabled={loading}
           >
             Browse File
           </button>
           {file && <p className="mt-2 text-sm text-green-400">📄 Selected: {file.name}</p>}
-          <div className="mt-6">
-            <button
-              onClick={handleUpload}
-              disabled={!file || loading}
-              className="px-8 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-full shadow-lg hover:scale-105 transition font-semibold"
-            >
-              {loading ? status : "Upload Resume"}
-            </button>
-          </div>
         </form>
       )}
 
@@ -159,18 +169,6 @@ const ResumeUpload = ({ setStarted }) => {
                Estimated Experience: <strong>{experience} years</strong>
             </p>
           </div>
-          <div className="flex gap-4">
-            <button
-              onClick={handleExtractSkills}
-              disabled={loading}
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-xl shadow"
-            >
-              {loading ? status : "Extract Skills"}
-            </button>
-            <button onClick={resetAll} className="w-full bg-gray-700 hover:bg-gray-800 text-white font-semibold py-3 rounded-xl shadow">
-              Reset
-            </button>
-          </div>
         </div>
       )}
 
@@ -188,17 +186,56 @@ const ResumeUpload = ({ setStarted }) => {
               ))}
             </div>
           </div>
-          <button
-            onClick={handleRecommendCareers}
-            disabled={loading}
-            className="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-bold py-3 rounded-xl shadow-lg"
-          >
-            {loading ? status : "Recommend Careers"}
-          </button>
         </div>
       )}
 
       {step === 3 && <CareerCards careers={careers} skills={skills} />}
+
+      {/* Navigation Buttons */}
+      <div className="flex justify-between mt-6">
+        <button
+          onClick={prevStep}
+          disabled={step === 0 || loading}
+          className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition ${
+            step === 0 || loading
+              ? "bg-gray-600 cursor-not-allowed text-gray-400"
+              : "bg-purple-600 hover:bg-purple-700 text-white"
+          }`}
+        >
+          <FaArrowLeft /> Back
+        </button>
+
+        <button
+          onClick={nextStep}
+          disabled={
+            loading ||
+            (step === 0 && !file) ||
+            (step === 1 && !text) ||
+            (step === 2 && skills.length === 0)
+          }
+          className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition ${
+            loading ||
+            (step === 0 && !file) ||
+            (step === 1 && !text) ||
+            (step === 2 && skills.length === 0)
+              ? "bg-gray-600 cursor-not-allowed text-gray-400"
+              : "bg-pink-600 hover:bg-pink-700 text-white"
+          }`}
+        >
+          Next <FaArrowRight />
+        </button>
+      </div>
+
+      {/* Reset Button */}
+      <div className="mt-4 text-center">
+        <button
+          onClick={resetAll}
+          disabled={loading}
+          className="text-sm text-gray-400 underline hover:text-gray-200"
+        >
+          Reset All
+        </button>
+      </div>
     </div>
   );
 };
