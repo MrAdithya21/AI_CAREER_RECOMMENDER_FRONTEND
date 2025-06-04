@@ -49,21 +49,28 @@ const JobCompare = () => {
     setFile(e.target.files[0]);
   };
 
-  const handleUpload = async () => {
-    if (!file) return alert("Please select a resume PDF.");
-    try {
-      const { text, experience } = await uploadResume(file);
-      setResumeText(text);
-      setExperience(experience);
-    } catch (err) {
-      console.error("Resume upload failed:", err);
-      alert("Resume upload failed. Please try again.");
-    }
-  };
-
+  // Auto-upload resume when file changes
   useEffect(() => {
-    if (resumeText && jobText) handleCompare();
-  }, [resumeText, jobText]);
+    if (!file) return;
+
+    const upload = async () => {
+      try {
+        const { text, experience } = await uploadResume(file);
+        setResumeText(text);
+        setExperience(experience);
+      } catch (err) {
+        console.error("Resume upload failed:", err);
+        alert("Resume upload failed. Please try again.");
+      }
+    };
+
+    upload();
+  }, [file]);
+
+  // Optionally, you can trigger comparison automatically when both inputs are ready
+  // useEffect(() => {
+  //   if (resumeText && jobText) handleCompare();
+  // }, [resumeText, jobText]);
 
   const handleCompare = async () => {
     if (!resumeText || !jobText) return alert("Please upload resume and paste job description.");
@@ -158,15 +165,6 @@ const JobCompare = () => {
             📄 Selected: <span className="font-semibold">{file.name}</span>
           </p>
         )}
-        <div className="mt-6">
-          <button
-            onClick={handleUpload}
-            disabled={!file}
-            className="px-8 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-full shadow-lg hover:scale-105 transition font-semibold"
-          >
-            Upload Resume
-          </button>
-        </div>
       </form>
 
       {/* Paste JD and Compare Button */}

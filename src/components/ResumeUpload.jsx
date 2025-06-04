@@ -156,7 +156,7 @@ const ResumeUpload = ({ setStarted }) => {
               rows={8}
             />
             <p className="text-sm text-indigo-300 mt-2">
-              📌 Estimated Experience: <strong>{experience} years</strong>
+               Estimated Experience: <strong>{experience} years</strong>
             </p>
           </div>
           <div className="flex gap-4">
