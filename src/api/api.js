@@ -61,15 +61,16 @@ export const sendChatMessage = async (message) => {
 
 // ✅ Resume vs Job Description comparator
 export const compareJob = async ({ resume_text, job_text, experience }) => {
-  const response = await axios.post("http://127.0.0.1:8000/compare-job", {
+  const response = await axios.post(`${API_BASE}/compare-job`, {
     resume_text,
     job_text,
     experience: parseInt(experience),
   });
   return response.data;
 };
+
 export const generateCoverLetterAndMessage = async (payload) => {
-  const response = await axios.post("http://127.0.0.1:8000/generate-docs", payload);
+  const response = await axios.post(`${API_BASE}/generate-docs`, payload);
   return response.data;
 };
 
