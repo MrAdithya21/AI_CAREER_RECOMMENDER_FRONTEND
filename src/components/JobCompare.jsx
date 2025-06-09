@@ -11,6 +11,7 @@ const JobCompare = () => {
   const [jobText, setJobText] = useState("");
   const [comparison, setComparison] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [generated, setGenerated] = useState(null);
   const [editedCoverLetter, setEditedCoverLetter] = useState("");
   const [editedLinkedInMsg, setEditedLinkedInMsg] = useState("");
@@ -49,7 +50,9 @@ const JobCompare = () => {
     setFile(e.target.files[0]);
   };
 
+
   // New handleCompare: send file + jobText + experience in one request
+
   const handleCompare = async () => {
     if (!file || !jobText) return alert("Please upload resume and paste job description.");
 
@@ -137,6 +140,7 @@ const JobCompare = () => {
           ref={inputRef}
           onChange={handleFileChange}
           className="hidden"
+          disabled={uploading}
         />
         <FaCloudUploadAlt className="mx-auto text-4xl text-purple-400 mb-4" />
         <p className="text-sm text-gray-300 mb-2">Drag & drop your resume PDF or DOCX here, or</p>
@@ -144,6 +148,7 @@ const JobCompare = () => {
           type="button"
           onClick={() => inputRef.current.click()}
           className="px-6 py-2 text-sm font-semibold bg-purple-600 hover:bg-purple-700 text-white rounded-full"
+          disabled={uploading}
         >
           Browse File
         </button>
@@ -151,6 +156,9 @@ const JobCompare = () => {
           <p className="mt-2 text-sm text-green-400">
             📄 Selected: <span className="font-semibold">{file.name}</span>
           </p>
+        )}
+        {uploading && (
+          <p className="mt-2 text-sm text-yellow-300 font-semibold">Uploading resume...</p>
         )}
       </form>
 
@@ -161,6 +169,7 @@ const JobCompare = () => {
         value={jobText}
         onChange={(e) => setJobText(e.target.value)}
         className="w-full p-4 rounded-xl bg-gray-800 border border-white/10 text-white resize-none shadow"
+        disabled={uploading}
       />
 
       <button
@@ -168,11 +177,12 @@ const JobCompare = () => {
         disabled={!file || !jobText || loading}
         className={`w-full py-3 rounded-xl font-semibold transition duration-300 ${
           !file || !jobText
+
             ? "bg-gray-600 cursor-not-allowed"
             : "bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg"
         }`}
       >
-        {loading ? "Comparing..." : "Compare with Job"}
+        {loading ? "Comparing..." : uploading ? "Uploading Resume..." : "Compare with Job"}
       </button>
 
       {/* Comparison Results */}
