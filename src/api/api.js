@@ -1,6 +1,7 @@
 import axios from "axios";
 
 const API_BASE = process.env.REACT_APP_API_BASE || "http://127.0.0.1:8000";
+// const API_BASE =  "http://127.0.0.1:8000";
 
 // ✅ Upload resume and get both text & experience
 export const uploadResume = async (file) => {
@@ -60,14 +61,16 @@ export const sendChatMessage = async (message) => {
 };
 
 // ✅ Resume vs Job Description comparator
-export const compareJob = async ({ resume_text, job_text, experience }) => {
-  const response = await axios.post(`${API_BASE}/compare-job`, {
-    resume_text,
-    job_text,
-    experience: parseInt(experience),
+const joinUrl = (base, path) => base.replace(/\/+$/, "") + "/" + path.replace(/^\/+/, "");
+
+export const compareJob = async (formData) => {
+  const url = joinUrl(API_BASE, "compare-job");
+  const response = await axios.post(url, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
   });
   return response.data;
 };
+
 
 export const generateCoverLetterAndMessage = async (payload) => {
   const response = await axios.post(`${API_BASE}/generate-docs`, payload);

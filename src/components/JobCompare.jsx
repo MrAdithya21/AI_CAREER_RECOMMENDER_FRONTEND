@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useRef } from "react";
-import { uploadResume, compareJob, generateCoverLetterAndMessage } from "../api/api";
+import React, { useState, useRef } from "react";
+import { compareJob, generateCoverLetterAndMessage } from "../api/api";
 import MatchDonutChart from "./MatchDonutChart";
 import { FaCloudUploadAlt } from "react-icons/fa";
 import jsPDF from "jspdf";
 
 const JobCompare = () => {
   const [file, setFile] = useState(null);
-  const [resumeText, setResumeText] = useState("");
+  // Removed resumeText state as text extraction is backend now
   const [experience, setExperience] = useState(0);
   const [jobText, setJobText] = useState("");
   const [comparison, setComparison] = useState(null);
@@ -50,35 +50,21 @@ const JobCompare = () => {
     setFile(e.target.files[0]);
   };
 
-  // Auto-upload resume when file changes
-  useEffect(() => {
-    if (!file) return;
 
-    const upload = async () => {
-      setUploading(true);
-      try {
-        const { text, experience } = await uploadResume(file);
-        setResumeText(text);
-        setExperience(experience);
-      } catch (err) {
-        console.error("Resume upload failed:", err);
-        alert("Resume upload failed. Please try again.");
-      }
-      setUploading(false);
-    };
-
-    upload();
-  }, [file]);
+  // New handleCompare: send file + jobText + experience in one request
 
   const handleCompare = async () => {
-    if (!resumeText || !jobText) return alert("Please upload resume and paste job description.");
+    if (!file || !jobText) return alert("Please upload resume and paste job description.");
+
     setLoading(true);
     try {
-      const result = await compareJob({
-        resume_text: resumeText,
-        job_text: jobText,
-        experience: parseInt(experience)
-      });
+      const formData = new FormData();
+      formData.append("resume_file", file);
+      formData.append("job_text", jobText);
+      formData.append("experience", experience || 0);
+
+      // compareJob should accept FormData and send multipart request
+      const result = await compareJob(formData);
       setComparison(result);
     } catch (err) {
       console.error("compareJob failed:", err);
@@ -91,7 +77,10 @@ const JobCompare = () => {
   const handleGenerateDocs = async () => {
     try {
       const result = await generateCoverLetterAndMessage({
-        resume_text: resumeText,
+        // For generating docs, you might want to send text extracted server-side
+        // Here, if you want, you can prompt backend to extract or keep a separate flow
+        // For now, keep using jobText & comparison to generate text or adjust as needed
+        resume_text: "", // Or consider a backend endpoint to extract resume text before generating docs
         job_text: jobText,
         full_name: "Adithya Singupati",
         location: "Bloomington, IN",
@@ -107,7 +96,10 @@ const JobCompare = () => {
       setGenerated(result);
       setEditedCoverLetter(result.cover_letter || "");
       setEditedLinkedInMsg(result.linkedin_message || "");
-      if (detectMissingPlaceholders(result.cover_letter) || detectMissingPlaceholders(result.linkedin_message)) {
+      if (
+        detectMissingPlaceholders(result.cover_letter) ||
+        detectMissingPlaceholders(result.linkedin_message)
+      ) {
         setMissingInfoPrompt(true);
       }
     } catch (error) {
@@ -144,14 +136,14 @@ const JobCompare = () => {
       >
         <input
           type="file"
-          accept=".pdf"
+          accept=".pdf,.docx"
           ref={inputRef}
           onChange={handleFileChange}
           className="hidden"
           disabled={uploading}
         />
         <FaCloudUploadAlt className="mx-auto text-4xl text-purple-400 mb-4" />
-        <p className="text-sm text-gray-300 mb-2">Drag & drop your resume PDF here, or</p>
+        <p className="text-sm text-gray-300 mb-2">Drag & drop your resume PDF or DOCX here, or</p>
         <button
           type="button"
           onClick={() => inputRef.current.click()}
@@ -182,9 +174,10 @@ const JobCompare = () => {
 
       <button
         onClick={handleCompare}
-        disabled={!resumeText || !jobText || loading || uploading}
+        disabled={!file || !jobText || loading}
         className={`w-full py-3 rounded-xl font-semibold transition duration-300 ${
-          !resumeText || !jobText || uploading
+          !file || !jobText
+
             ? "bg-gray-600 cursor-not-allowed"
             : "bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg"
         }`}
@@ -200,16 +193,25 @@ const JobCompare = () => {
           <div className="grid md:grid-cols-2 gap-6 text-sm">
             <div>
               <h4 className="text-white font-semibold mb-1">Experience Summary</h4>
-              <p><strong>Experience Match:</strong> {comparison.experience_match ? "✅ Yes" : "❌ No"}</p>
-              <p><strong>Your Experience:</strong> {comparison.resume_experience} years</p>
-              <p><strong>Required Experience:</strong> {comparison.job_required_experience} years</p>
+              <p>
+                <strong>Experience Match:</strong>{" "}
+                {comparison.experience_match ? "✅ Yes" : "❌ No"}
+              </p>
+              <p>
+                <strong>Your Experience:</strong> {comparison.resume_experience} years
+              </p>
+              <p>
+                <strong>Required Experience:</strong> {comparison.job_required_experience} years
+              </p>
             </div>
             {comparison.tool_experience && (
               <div>
                 <h4 className="text-white font-semibold mb-1">Tool-Specific Requirements</h4>
                 <ul className="list-disc ml-6 text-yellow-300">
                   {Object.entries(comparison.tool_experience).map(([tool, years], idx) => (
-                    <li key={idx}>{tool}: {years} years</li>
+                    <li key={idx}>
+                      {tool}: {years} years
+                    </li>
                   ))}
                 </ul>
               </div>
@@ -285,7 +287,7 @@ const JobCompare = () => {
                   <input
                     key={field}
                     type="text"
-                    placeholder={field.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
+                    placeholder={field.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
                     value={userFix[field]}
                     onChange={(e) => setUserFix({ ...userFix, [field]: e.target.value })}
                     className="bg-gray-800 text-white p-2 rounded border border-gray-600"
@@ -296,7 +298,7 @@ const JobCompare = () => {
                 className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded shadow"
                 onClick={async () => {
                   const fixedResult = await generateCoverLetterAndMessage({
-                    resume_text: resumeText,
+                    resume_text: "", // Or fetch from server if needed
                     job_text: jobText,
                     full_name: userFix.full_name || "Adithya Singupati",
                     location: "Bloomington, IN",
