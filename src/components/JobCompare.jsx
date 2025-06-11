@@ -41,12 +41,24 @@ const JobCompare = () => {
     e.stopPropagation();
     setDragActive(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      setFile(e.dataTransfer.files[0]);
+      const droppedFile = e.dataTransfer.files[0];
+      if (/\.(pdf|docx)$/i.test(droppedFile.name)) {
+        setFile(droppedFile);
+      } else {
+        alert("Unsupported file type. Please upload PDF or DOCX.");
+      }
     }
   };
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    if (e.target.files[0]) {
+      const selectedFile = e.target.files[0];
+      if (/\.(pdf|docx)$/i.test(selectedFile.name)) {
+        setFile(selectedFile);
+      } else {
+        alert("Unsupported file type. Please upload PDF or DOCX.");
+      }
+    }
   };
 
   // Auto-upload resume when file changes
@@ -67,19 +79,16 @@ const JobCompare = () => {
     upload();
   }, [file]);
 
-  // Optionally, you can trigger comparison automatically when both inputs are ready
-  // useEffect(() => {
-  //   if (resumeText && jobText) handleCompare();
-  // }, [resumeText, jobText]);
-
   const handleCompare = async () => {
-    if (!resumeText || !jobText) return alert("Please upload resume and paste job description.");
+    if (!file || !jobText.trim()) {
+      return alert("Please upload a resume file and paste the job description.");
+    }
     setLoading(true);
     try {
       const result = await compareJob({
-        resume_text: resumeText,
+        resumeFile: file,
         job_text: jobText,
-        experience: parseInt(experience)
+        experience: experience || 0,
       });
       setComparison(result);
     } catch (err) {
@@ -146,13 +155,13 @@ const JobCompare = () => {
       >
         <input
           type="file"
-          accept=".pdf"
+          accept=".pdf,.docx"
           ref={inputRef}
           onChange={handleFileChange}
           className="hidden"
         />
         <FaCloudUploadAlt className="mx-auto text-4xl text-purple-400 mb-4" />
-        <p className="text-sm text-gray-300 mb-2">Drag & drop your resume PDF here, or</p>
+        <p className="text-sm text-gray-300 mb-2">Drag & drop your resume PDF or DOCX here, or</p>
         <button
           type="button"
           onClick={() => inputRef.current.click()}
@@ -178,9 +187,9 @@ const JobCompare = () => {
 
       <button
         onClick={handleCompare}
-        disabled={!resumeText || !jobText || loading}
+        disabled={!file || !jobText.trim() || loading}
         className={`w-full py-3 rounded-xl font-semibold transition duration-300 ${
-          !resumeText || !jobText
+          !file || !jobText.trim()
             ? "bg-gray-600 cursor-not-allowed"
             : "bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg"
         }`}
@@ -200,7 +209,7 @@ const JobCompare = () => {
               <p><strong>Your Experience:</strong> {comparison.resume_experience} years</p>
               <p><strong>Required Experience:</strong> {comparison.job_required_experience} years</p>
             </div>
-            {comparison.tool_experience && (
+            {comparison.tool_experience && Object.keys(comparison.tool_experience).length > 0 && (
               <div>
                 <h4 className="text-white font-semibold mb-1">Tool-Specific Requirements</h4>
                 <ul className="list-disc ml-6 text-yellow-300">
@@ -215,11 +224,15 @@ const JobCompare = () => {
           <div className="grid md:grid-cols-2 gap-6">
             <div>
               <h4 className="text-green-300 font-semibold mb-1">Matched Skills</h4>
-              <ul className="list-disc ml-6">
-                {comparison.matched.map((skill, idx) => (
-                  <li key={idx}>{skill}</li>
-                ))}
-              </ul>
+              {comparison.matched.length === 0 ? (
+                <p>No matched skills found.</p>
+              ) : (
+                <ul className="list-disc ml-6">
+                  {comparison.matched.map((skill, idx) => (
+                    <li key={idx}>{skill}</li>
+                  ))}
+                </ul>
+              )}
             </div>
             <div>
               <h4 className="text-red-400 font-semibold mb-1">Missing Skills</h4>

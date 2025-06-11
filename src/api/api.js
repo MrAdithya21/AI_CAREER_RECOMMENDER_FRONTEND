@@ -60,12 +60,18 @@ export const sendChatMessage = async (message) => {
 };
 
 // ✅ Resume vs Job Description comparator
-export const compareJob = async ({ resume_text, job_text, experience }) => {
-  const response = await axios.post(`${API_BASE}/compare-job`, {
-    resume_text,
-    job_text,
-    experience: parseInt(experience),
+export const compareJob = async ({ resumeFile, job_text, experience }) => {
+  const formData = new FormData();
+  formData.append("resume_file", resumeFile);
+  formData.append("job_text", job_text);
+  formData.append("experience", experience ? parseInt(experience) : 0);
+
+  const response = await axios.post(`${API_BASE}/compare-job`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
   });
+
   return response.data;
 };
 
