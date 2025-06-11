@@ -1,74 +1,102 @@
-<<<<<<< HEAD
-# Getting Started with Create React App
+# AI Career Recommender - Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Overview
 
-## Available Scripts
+This is the **frontend** repository for the **AI Career Recommender** web application. The app is designed to help users discover personalized career paths based on their uploaded resume and extracted skills. It uses AI-powered APIs to analyze resumes, extract relevant skills, estimate experience, and recommend suitable career options, presenting results through an interactive and user-friendly interface.
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## Project Structure
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **public/**  
+  Contains static assets such as `favicon.ico`, HTML template (`index.html`), and app logos (`logo192.png`, `logo512.png`).
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- **src/**  
+  The main source code directory containing:
 
-### `npm test`
+  - **api/**  
+    Contains `api.js`, which manages API calls to the backend services for uploading resumes, extracting skills, and getting career recommendations.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+  - **assets/**  
+    Holds static JSON or media assets like `loading.json` (for animations or visual effects).
 
-### `npm run build`
+  - **components/**  
+    React components used throughout the app, including:  
+    - `CareerCards.jsx` – displays recommended career cards dynamically.  
+    - `CareerChatbot.jsx` – chatbot interface to discuss career options.  
+    - `CoverLetterGenerator.jsx` – generates cover letters based on user data.  
+    - `FloatingChatAssistant.jsx` – floating chat widget for interactive assistance.  
+    - `Footer.jsx` and `Header.jsx` – page layout components.  
+    - `JobCompare.jsx` – compares multiple job roles or offers.  
+    - `MainTabs.jsx` – tab navigation for main sections of the app.  
+    - `MatchDonutChart.jsx` and `SalaryChart.jsx` – data visualizations for skill match and salary insights.  
+    - `RecommendationPage.jsx` – page that summarizes recommended careers.  
+    - `ResumeUpload.jsx` – multi-step resume upload and processing flow.  
+    - `SkillDisplay.jsx` – shows extracted skills in an interactive format.  
+    - `StepTracker.jsx` – shows progress in multi-step workflows.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- **App.js**  
+  The main React component rendering the overall app layout and managing global state.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- **App.css**  
+  Global styles for the app.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+---
 
-### `npm run eject`
+## How It Works
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+1. **Resume Upload**  
+   Users upload their resume PDF via the `ResumeUpload` component. It supports drag-and-drop or manual file selection.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+2. **Resume Processing**  
+   The uploaded file is sent to the backend via API (`uploadResume`), which extracts the resume text and estimates years of experience.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+3. **Skill Extraction**  
+   The extracted text is analyzed using AI-powered skill extraction (`extractSkills` API). Skills are displayed interactively to the user.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+4. **Career Recommendations**  
+   Based on the extracted skills and experience, AI generates personalized career recommendations (`recommendCareers` API). These careers are presented with detailed cards showing roles, skills match, and insights.
 
-## Learn More
+5. **Interactive Features**  
+   - Users can chat with the AI career chatbot (`CareerChatbot.jsx`) for guidance or queries.  
+   - Cover letter generation helps create tailored letters based on the resume data.  
+   - Visual charts display skill match and salary insights, aiding decision-making.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+---
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Technologies Used
 
-### Code Splitting
+- **React.js** – Frontend UI library for building interactive components.  
+- **Tailwind CSS** – Utility-first CSS framework for styling.  
+- **React Icons** – Iconography for UI elements.  
+- **Confetti** – Celebration animations for user feedback.  
+- **Custom APIs** – Interact with backend services for resume parsing, skill extraction, and career recommendation.  
+- **React Hook `useWindowSize`** – Responsive design handling.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+---
 
-### Analyzing the Bundle Size
+## How to Run Locally
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+1. Clone the repository.
+2. Run `npm install` to install dependencies.
+3. Ensure backend APIs are running and accessible.
+4. Run `npm start` to launch the app on `localhost:3000`.
 
-### Making a Progressive Web App
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## Future Enhancements
 
-### Advanced Configuration
+- Add user authentication for saving personalized career profiles.
+- Enable resume editing and real-time skill updates.
+- Integrate more detailed salary and growth analytics.
+- Enhance chatbot intelligence with multi-turn dialogue capabilities.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+---
 
-### Deployment
+## Contact
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+For questions or collaboration, please reach out to aditya.singupati@gmail.com
 
-### `npm run build` fails to minify
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
-=======
-# AI_CAREER_RECOMMENDER_FRONTEND
->>>>>>> 080646fbe98dccb002814bda146cde5663aaebef
+Thank you for exploring the **AI Career Recommender** frontend project!
